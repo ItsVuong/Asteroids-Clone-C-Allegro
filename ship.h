@@ -28,6 +28,6 @@ void drawShip(Ship &ship);
 void rotate_left(Ship &ship);
 void rotate_right(Ship &ship);
 void move_ship(Ship &ship);
-void friction(Ship &ship);
+void updateShip(Ship &ship);
 
 #endif

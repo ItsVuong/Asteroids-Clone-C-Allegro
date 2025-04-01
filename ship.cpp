@@ -1,11 +1,12 @@
 #include "ship.h"
+#include "asteroids.h"
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/color.h>
 void createShip(Ship &ship) {
   ship.width = 30;
   ship.height = 20;
-  ship.coorX = 0.0;
-  ship.coorY = 0.0;
+  ship.coorX = WIDTH / 2.0;
+  ship.coorY = HEIGHT / 2.0;
   ship.angle = 0.0;
 
   ship.acceleration = 0;
@@ -19,7 +20,8 @@ void createShip(Ship &ship) {
 }
 
 void drawShip(Ship &ship) {
-  //Because the thinkness of the outline is 3, the 1.5 is so that the lines do not go out of the bitmap
+  // Because the thinkness of the outline is 3, the 1.5 is so that the lines do
+  // not go out of the bitmap
   al_draw_triangle(1.5, ship.height - 1.5, 1.5, 0 + 1.5, ship.width,
                    ship.height / 2.0, al_map_rgb(255, 255, 255), 2);
 }
@@ -48,8 +50,23 @@ void move_ship(Ship &ship) {
   }
 }
 
-void friction(Ship &ship) {
+void updateShip(Ship &ship) {
   // Apply friction
   ship.velocityX *= 0.991;
   ship.velocityY *= 0.991;
+
+  //  Set ship's position
+  ship.coorY += -ship.velocityY;
+  ship.coorX += ship.velocityX;
+
+  // Re-position spaceship if it goes out of screen
+  if (ship.coorY < 0 - ship.width / 2.0)
+    ship.coorY = (HEIGHT + ship.width / 2.0);
+  if (ship.coorY > (HEIGHT + ship.width / 2.0))
+    ship.coorY = (0 - ship.width / 2.0);
+
+  if (ship.coorX < 0 - ship.width / 2.0)
+    ship.coorX = (WIDTH + ship.width / 2.0);
+  if (ship.coorX > (WIDTH + ship.width / 2.0))
+    ship.coorX = (0 - ship.width / 2.0);
 }

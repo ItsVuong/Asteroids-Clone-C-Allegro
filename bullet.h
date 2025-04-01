@@ -6,8 +6,8 @@
 #include <allegro5/color.h>
 #include <cmath>
 
-#define BULLET_SPEED 16.0
-#define BULLET_LIFE_TIME 60
+#define BULLET_SPEED 13.0
+#define BULLET_LIFE_TIME 70
 #define MAGAZINE_SIZE 20
 struct Bullet{
   double coorX;

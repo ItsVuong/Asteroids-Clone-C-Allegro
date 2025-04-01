@@ -1,4 +1,5 @@
 #include "bullet.h"
+#include "asteroids.h"
 
 void createBullets(Bullet bullets[]) {
   for (int i = 0; i < MAGAZINE_SIZE; i++) {
@@ -16,6 +17,7 @@ void fireBullet(Bullet bullets[], Ship ship) {
       bullets[i].coorY = ship.coorY;
       bullets[i].velocityX = ship.velocityX;
       bullets[i].velocityY = ship.velocityY;
+      bullets[i].lifeTime = 0;
       break;
     }
   }
@@ -24,10 +26,8 @@ void fireBullet(Bullet bullets[], Ship ship) {
 void drawBullet(Bullet bullets[], int screendWidth, int screenHeight) {
   for (int i = 0; i < MAGAZINE_SIZE; i++) {
     if (bullets[i].isAlive) {
-      al_draw_circle(
-          bullets[i].coorX + screendWidth/2.0,
-          bullets[i].coorY + screenHeight/2.0,
-          1, al_map_rgb(255, 255, 255), 2);
+      al_draw_circle(bullets[i].coorX, bullets[i].coorY, 1,
+                     al_map_rgb(255, 255, 255), 2);
     }
   }
 }
@@ -35,18 +35,31 @@ void drawBullet(Bullet bullets[], int screendWidth, int screenHeight) {
 void updateBullets(Bullet bullets[]) {
   for (int i = 0; i < MAGAZINE_SIZE; i++) {
     if (bullets[i].isAlive) {
-      //The foward velocity of the bullet + the velocity of the ship at the time the bullet is fired
+      // The foward velocity of the bullet + the velocity of the ship at the
+      // time the bullet is fired
       bullets[i].coorX +=
-          bullets[i].speed * cos(bullets[i].angle * (M_PI / 180.0)) + bullets[i].velocityX;
+          bullets[i].speed * cos(bullets[i].angle * (M_PI / 180.0)) +
+          bullets[i].velocityX;
       bullets[i].coorY -=
-          bullets[i].speed * sin(bullets[i].angle * (M_PI / 180.0)) + bullets[i].velocityY;
-      //Increase the time that the bullet has lived each iteration
-      bullets[i].lifeTime++;
-      
-      if (bullets[i].lifeTime > BULLET_LIFE_TIME) {
-        bullets[i].isAlive = false;
-        bullets[i].lifeTime = 0;
-      }
+          bullets[i].speed * sin(bullets[i].angle * (M_PI / 180.0)) +
+          bullets[i].velocityY;
+      // Increase the time that the bullet has lived each iteration
+      bullets[i].lifeTime += 1;
+    }
+    // Reposition the bullet at the other side of the screen if it beyond the
+    // screen's edges
+    if (bullets[i].coorX > WIDTH)
+      bullets[i].coorX = 0;
+    if (bullets[i].coorX < 0)
+      bullets[i].coorX = WIDTH;
+    if (bullets[i].coorY > HEIGHT)
+      bullets[i].coorY = 0;
+    if (bullets[i].coorY < 0)
+      bullets[i].coorY = HEIGHT;
+    // Expire bullet
+    if (bullets[i].lifeTime >= BULLET_LIFE_TIME) {
+      bullets[i].isAlive = false;
+      bullets[i].lifeTime = 0;
     }
   }
 }

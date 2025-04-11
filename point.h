@@ -3,4 +3,3 @@ struct Point {
 };
 
 Point newPoint(float x, float y);
-Point rotateTransformPoint(Point p, float d);

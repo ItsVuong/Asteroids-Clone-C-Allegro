@@ -1,5 +1,5 @@
 #include "bullet.h"
-#include "asteroids.h"
+#include "game.h"
 
 void createBullets(Bullet bullets[]) {
   for (int i = 0; i < MAGAZINE_SIZE; i++) {
@@ -39,10 +39,10 @@ void updateBullets(Bullet bullets[]) {
       // time the bullet is fired
       bullets[i].coorX +=
           bullets[i].speed * cos(bullets[i].angle * (M_PI / 180.0)) +
-          bullets[i].velocityX;
+          bullets[i].velocityX * 0.5;
       bullets[i].coorY -=
           bullets[i].speed * sin(bullets[i].angle * (M_PI / 180.0)) +
-          bullets[i].velocityY;
+          bullets[i].velocityY * 0.5;
       // Increase the time that the bullet has lived each iteration
       bullets[i].lifeTime += 1;
     }

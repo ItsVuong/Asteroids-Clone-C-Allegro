@@ -6,7 +6,7 @@
 #include <cmath>
 
 #define MAX_SPEED 7
-#define ROTATE_SPPED 2.3
+#define ROTATE_SPPED 3.0
 struct Ship{
   int width;
   int height;

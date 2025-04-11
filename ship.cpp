@@ -1,5 +1,5 @@
 #include "ship.h"
-#include "asteroids.h"
+#include "game.h"
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/color.h>
 void createShip(Ship &ship) {

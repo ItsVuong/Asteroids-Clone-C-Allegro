@@ -18,7 +18,7 @@ float distanceBetweenPoints(Point a, Point b) {
   return result;
 }
 // Initialize comet object
-void createComet(Comet &comet, int cometType) {
+void createComet(Comet &comet, COMET_TYPE cometType) {
   comet.coorY = 0.0;
   comet.coorX = 0.0;
 
@@ -26,10 +26,10 @@ void createComet(Comet &comet, int cometType) {
   comet.speed = 0.0;
 
   comet.isAlive = false;
-  comet.bitmap = al_create_bitmap(BITMAP_WIDTH, BITMAP_HEIGHT);
-  if (cometType == 2) {
+  comet.bitmap = al_create_bitmap(COMET_BITMAP_WIDTH, COMET_BITMAP_HEIGHT);
+  if (cometType == SMALL) {
     comet.shape = SHAPES[1];
-  } else if (cometType == 3) {
+  } else if (cometType == TINY) {
     comet.shape = SHAPES[2];
   } else {
     comet.shape = SHAPES[0];
@@ -47,9 +47,8 @@ void drawComet(Comet &comet) {
 }
 
 // Actually showing the comet and randomizet it's position
-void spawnComet(Comet &comet) {
+void spawnComet(Comet &comet, Point center) {
   // Get a random point that is 300 pixel away from the center of the screen
-  Point center = newPoint((WIDTH / 2.0), (HEIGHT / 2.0));
   Point cometLocation = newPoint(rand() % WIDTH, rand() % HEIGHT);
   while (distanceBetweenPoints(center, cometLocation) < 300) {
     cometLocation = newPoint(rand() % WIDTH, rand() * HEIGHT);
@@ -76,17 +75,17 @@ void moveComet(Comet comets[], int size) {
       if (comets[i].angle < 0)
         comets[i].angle = 360;
 
-      if (comets[i].coorX > WIDTH + BITMAP_HEIGHT / 2.0) {
-        comets[i].coorX = 0 - BITMAP_HEIGHT / 2.0;
+      if (comets[i].coorX > WIDTH + COMET_BITMAP_HEIGHT / 2.0) {
+        comets[i].coorX = 0 - COMET_BITMAP_HEIGHT / 2.0;
       }
-      if (comets[i].coorX < 0 - BITMAP_HEIGHT / 2.0) {
-        comets[i].coorX = WIDTH + BITMAP_HEIGHT / 2.0;
+      if (comets[i].coorX < 0 - COMET_BITMAP_HEIGHT / 2.0) {
+        comets[i].coorX = WIDTH + COMET_BITMAP_HEIGHT / 2.0;
       }
-      if (comets[i].coorY > HEIGHT + BITMAP_HEIGHT / 2.0) {
-        comets[i].coorY = 0 - BITMAP_HEIGHT / 2.0;
+      if (comets[i].coorY > HEIGHT + COMET_BITMAP_HEIGHT / 2.0) {
+        comets[i].coorY = 0 - COMET_BITMAP_HEIGHT / 2.0;
       }
-      if (comets[i].coorY < 0 - BITMAP_HEIGHT / 2.0) {
-        comets[i].coorY = HEIGHT + BITMAP_HEIGHT / 2.0;
+      if (comets[i].coorY < 0 - COMET_BITMAP_HEIGHT / 2.0) {
+        comets[i].coorY = HEIGHT + COMET_BITMAP_HEIGHT / 2.0;
       }
     }
   }
@@ -108,13 +107,13 @@ void spawnSmallComet(Comet &parentComet, Comet &smallComet) {
   smallComet.direction = parentComet.direction + (rand() % 30 + 1) * direction;
 }
 
-Point getVertexLocation(Comet &comet, int i) {
+Point getVertexLocation(Comet &comet, int i) { // i is vertex number
   // Get the actual position of the verices
   //(center of bitmap - half of WIDTH or LENGTH) = starting point of the bitmap
   //(0, 0) From the starting point + Vertices location on respective to the
   // bitmap
-  float x = (comet.coorX - BITMAP_WIDTH / 2.0 + comet.shape[i].x);
-  float y = (comet.coorY - BITMAP_WIDTH / 2.0 + comet.shape[i].y);
+  float x = (comet.coorX - COMET_BITMAP_WIDTH / 2.0 + comet.shape[i].x);
+  float y = (comet.coorY - COMET_BITMAP_WIDTH / 2.0 + comet.shape[i].y);
   float angleRadian = comet.angle * (M_PI / 180.0);
 
   // Apply linear transformation rotation to get the position of the vertices

@@ -27,7 +27,7 @@ void drawBullet(Bullet bullets[], int screendWidth, int screenHeight) {
   for (int i = 0; i < MAGAZINE_SIZE; i++) {
     if (bullets[i].isAlive) {
       al_draw_circle(bullets[i].coorX, bullets[i].coorY, 1,
-                     al_map_rgb(255, 255, 255), 2);
+                     al_map_rgb(255, 255, 255), 1.5);
     }
   }
 }

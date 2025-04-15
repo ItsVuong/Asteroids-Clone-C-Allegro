@@ -8,13 +8,18 @@
 #include <allegro5/display.h>
 #include <vector>
 
-const int BITMAP_HEIGHT = 120;
-const int BITMAP_WIDTH = 120;
+const int COMET_BITMAP_HEIGHT = 120;
+const int COMET_BITMAP_WIDTH = 120;
 const std::vector<Point> SHAPES[] = {
-    {{10, 10}, {10, 115}, {115, 115}, {115, 10}},
+    {{10, 10}, {10, 100}, {115, 115}, {115, 10}},
     {{5, 5}, {5, 90}, {90, 90}, {90, 5}},
     {{5, 5}, {5, 40}, {40, 40}, {40, 5}}};
 const std::vector<Point> cometShape = {{5, 5}, {5, 90}, {90, 90}, {90, 5}};
+typedef enum {
+  NORMAL = 0x00,
+  SMALL = 0x01,
+  TINY = 0x02,
+} COMET_TYPE;
 
 struct Comet {
   double coorX;
@@ -28,8 +33,9 @@ struct Comet {
   std::vector<Point> shape;
 };
 void drawComet(Comet &comet);
-void createComet(Comet &comet, int cometType);
-void spawnComet(Comet &comet);
+void createComet(Comet &comet, COMET_TYPE type);
+// Comet will spawn far away from a chosen point
+void spawnComet(Comet &comet, Point center);
 void moveComet(Comet comets[], int size);
 
 void spawnSmallComet(Comet &parentComet, Comet &smallComet);

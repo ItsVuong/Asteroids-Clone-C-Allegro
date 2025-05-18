@@ -1,5 +1,5 @@
 #include "ship.h"
-#include "game.h"
+#include "main.h"
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/color.h>
 #include <cmath>

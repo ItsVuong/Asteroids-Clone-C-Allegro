@@ -2,10 +2,12 @@
 #include "bullet.h"
 #include "collision.h"
 #include "comet.h"
+#include "main.h"
 #include "ship.h"
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_ttf.h>
 #include <allegro5/bitmap.h>
 #include <allegro5/bitmap_draw.h>
 #include <allegro5/color.h>
@@ -20,84 +22,73 @@
 #include <cstdio>
 #include <cstdlib>
 
-const int COMET_SIZE = 5;
+const int COMET_SIZE = 9;
 void onNormalCometCollide(Comet &comet, Comet smallComets[], int size);
 void onSmallCometCollide(Comet &parentComet, Comet tinyComets[], int size);
 void onTinyCometCollide(Comet &parentComet, Comet tinyComets[], int size);
 void onShipCollide(Ship &ship);
+
 void checkForCollision(Comet cometArray[], Bullet bullets[],
                        int parentCometsSize,
                        void (*collisionHandler)(Comet &, Comet[], int),
                        Comet childComets[], int childCometsSize);
+
 void checkForShipCollision(Ship &ship, Comet cometArray[], int cometArraySize,
                            void (*ccollisionHandler)(Ship &ship));
-Ship ship;
 
-int main() {
-  bool running = true;
+Ship ship;
+// Objects
+Bullet bullets[MAGAZINE_SIZE];
+Comet cometArray[COMET_SIZE];
+Comet smallCometArray[COMET_SIZE * 2];
+Comet tinyCometArray[COMET_SIZE * 2 * 2];
+// Track if all comets has been destroyed
+int activeComets = 0;
+
+// Start game
+int game(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer,
+         ALLEGRO_EVENT_QUEUE *event_queue, ALLEGRO_FONT *font) {
+  ALLEGRO_FONT *titleFont =
+      al_load_ttf_font("assets/ASTEROID TYPE demo.ttf", 220, 0);
+  ALLEGRO_FONT *menuFont = al_load_ttf_font("assets/DePixelKlein.ttf", 20, 0);
   bool redraw = true;
   bool keys[5] = {false, false, false, false, false};
-  int angle = 0;
   srand(time(NULL));
 
-  // Objects
-  Bullet bullets[MAGAZINE_SIZE];
-  Comet cometArray[COMET_SIZE];
-  Comet smallCometArray[COMET_SIZE * 2];
-  Comet tinyCometArray[COMET_SIZE * 2 * 2];
+  // Create objects
   createShip(ship);
-  createBullets(bullets);
-  // Track if all comets has been destroyed
-  int activeComets = 0;
-
-  // Initialization functions
-  al_init();
-  al_init_primitives_addon();
-  al_install_keyboard();
-
-  // Allegro variables
-  ALLEGRO_DISPLAY *display = al_create_display(WIDTH, HEIGHT);
-  ALLEGRO_TIMER *timer = al_create_timer(1.0 / FPS);
-  ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
-  ALLEGRO_FONT *font = al_create_builtin_font();
-  ALLEGRO_BITMAP *ship_image = al_create_bitmap(200, 200);
-
+  ALLEGRO_BITMAP *ship_image = al_create_bitmap(ship.width, ship.height);
   al_set_target_bitmap(ship_image);
-  drawShip();
+  al_clear_to_color(
+      al_map_rgba(0, 0, 0, 0)); // Clear and make the bitmap transparent
+  drawShip();                   // Draw ship on the bitmap's dimension
+  al_set_target_bitmap(al_get_backbuffer(display));
+  createBullets(bullets);
 
   // Initialize normal size comets
   for (int i = 0; i < COMET_SIZE; i++) {
     createComet(cometArray[i], NORMAL);
     spawnComet(cometArray[i], {(float)ship.coorX, (float)ship.coorY});
     al_set_target_bitmap(cometArray[i].bitmap);
+    al_clear_to_color(al_map_rgba(0, 0, 0, 0));
     drawComet(cometArray[i]);
   }
   // Initalize small comets
   for (int i = 0; i < COMET_SIZE * 2; i++) {
     createComet(smallCometArray[i], SMALL);
     al_set_target_bitmap(smallCometArray[i].bitmap);
+    al_clear_to_color(al_map_rgba(0, 0, 0, 0));
     drawComet(smallCometArray[i]);
   }
   for (int i = 0; i < COMET_SIZE * 2 * 2; i++) {
     createComet(tinyCometArray[i], TINY);
     al_set_target_bitmap(tinyCometArray[i].bitmap);
+    al_clear_to_color(al_map_rgba(0, 0, 0, 0));
     drawComet(tinyCometArray[i]);
   }
-
   al_set_target_bitmap(al_get_backbuffer(display));
 
-  al_register_event_source(event_queue, al_get_display_event_source(display));
-  al_register_event_source(event_queue, al_get_timer_event_source(timer));
-  al_register_event_source(event_queue, al_get_keyboard_event_source());
-  al_start_timer(timer);
-
-  Point randomPositions[5];
-  for (int i = 0; i < 5; i++) {
-    randomPositions[i].x = rand() % WIDTH;
-    randomPositions[i].y = rand() % HEIGHT;
-  }
-
-  while (running) {
+  while (ship.lives > 0) {
     ALLEGRO_EVENT event;
     al_wait_for_event(event_queue, &event);
     // Read keyboard events
@@ -121,7 +112,7 @@ int main() {
     }
 
     if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
-      running = false;
+      ship.lives = 0;
     } else if (event.type == ALLEGRO_EVENT_TIMER) {
       if (keys[UP]) {
         move_ship(ship);
@@ -136,7 +127,9 @@ int main() {
         rotate_right(ship);
       }
       if (keys[SPACE]) {
-        fireBullet(bullets, ship);
+        if (ship.isAlive) {
+          fireBullet(bullets, ship);
+        }
         keys[SPACE] = false;
       }
       updateBullets(bullets);
@@ -154,13 +147,20 @@ int main() {
       checkForCollision(tinyCometArray, bullets, COMET_SIZE * 2 * 2,
                         onTinyCometCollide, tinyCometArray, COMET_SIZE * 2 * 2);
       // Check for ship collision
+      // 3 separate if to prevent the ship can collide with multiple comets at
+      // the same time
       if (!ship.justRevied && ship.isAlive) {
         checkForShipCollision(ship, cometArray, COMET_SIZE, onShipCollide);
+      }
+      if (!ship.justRevied && ship.isAlive) {
         checkForShipCollision(ship, smallCometArray, COMET_SIZE * 2,
                               onShipCollide);
+      }
+      if (!ship.justRevied && ship.isAlive) {
         checkForShipCollision(ship, tinyCometArray, COMET_SIZE * 2 * 2,
                               onShipCollide);
       }
+
       // Check if all comets has been destroyed
       activeComets = 0;
       for (int i = 0; i < COMET_SIZE * 2 * 2; i++) {
@@ -231,24 +231,36 @@ int main() {
                                WIDTH - 40 - i * 30, 30, -90 * (M_PI / 180.0),
                                0);
       }
-      al_draw_textf(font, al_map_rgb(255, 255, 255), 45, 45, 0,
-                    "ship.x: %d, ship.y: %f", activeComets,
-                    getVertexLocation(cometArray[0], 0).y);
+      al_flip_display();
+    }
+  }
+
+  while (true) {
+    ALLEGRO_EVENT event;
+    al_wait_for_event(event_queue, &event);
+    // Read keyboard events
+    if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+      break;
+    }
+    if (ship.lives == 0) {
+      al_clear_to_color(al_map_rgb(0, 0, 0));
+      al_draw_textf(titleFont, al_map_rgb(255, 255, 255), WIDTH / 2.0, 100,
+                    ALLEGRO_ALIGN_CENTER, "GAME OVER");
+      al_draw_textf(menuFont, al_map_rgb(255, 255, 255), WIDTH / 2.0, 500,
+                    ALLEGRO_ALIGN_CENTER, "YOUR SCORE: %d", ship.score);
       al_flip_display();
     }
   }
 
   // Cleanup
-  al_destroy_timer(timer);
-  al_destroy_display(display);
-  al_destroy_font(font);
   al_destroy_bitmap(ship_image);
-  al_destroy_event_queue(event_queue); // Free event queue
+  destroyComets(cometArray, COMET_SIZE);
+  destroyComets(smallCometArray, COMET_SIZE * 2);
+  destroyComets(tinyCometArray, COMET_SIZE * 4);
+  al_destroy_font(menuFont);
+  al_destroy_font(titleFont);
 
-  // Free dynamically created bitmaps
-  for (int i = 0; i < COMET_SIZE; i++) {
-    al_destroy_bitmap(cometArray[i].bitmap);
-  }
+  return 0;
 }
 
 // Handle the event of a bullet hitting a comet
@@ -289,7 +301,6 @@ void checkForCollision(Comet cometArray[], Bullet bullets[],
       for (int j = 0; j < MAGAZINE_SIZE; j++) {
         if (bullets[j].isAlive) {
           if (pointToPolygonCollision(cometArray[i], bullets[j])) {
-            int count = 0;
             cometArray[i].isAlive = false;
             bullets[j].isAlive = false;
             collisionHandler(cometArray[i], childComets, childCometsSize);

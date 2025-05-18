@@ -6,12 +6,14 @@ WARN=-Wall
 ALLEGRO=-lallegro -lallegro_main -lallegro_audio -lallegro_dialog -lallegro_ttf -lallegro_image -lallegro_color -lallegro_memfile -lallegro_acodec -lallegro_primitives -lallegro_font
 CCFLAGS=$(DEBUG) $(OPT) $(WARN) $(ALLEGRO)
 LD=g++
-OBJS= game.o ship.o bullet.o comet.o point.o collision.o
+OBJS= main.o game.o ship.o bullet.o comet.o point.o collision.o
 all: $(OBJS)
 	$(LD) -o $(TARGET) $(OBJS) $(CCFLAGS)
 	@rm *.o
 	@./$(TARGET)
 
+main.o: main.cpp
+	$(CC) -c $(CCFLAGS) main.cpp -o main.o
 game.o: game.cpp
 	$(CC) -c $(CCFLAGS) game.cpp -o game.o
 ship.o: ship.cpp

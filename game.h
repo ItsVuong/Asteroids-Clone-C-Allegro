@@ -1,10 +1,10 @@
 #ifndef _ASTEROIDS_
 #define _ASTEROIDS_
 
-const int WIDTH = 1000;
-const int HEIGHT = 700;
-const int FPS = 60;
+#include <allegro5/allegro_font.h>
+#include <allegro5/events.h>
 enum KEYS { UP, DOWN, LEFT, RIGHT, SPACE };
-int game();
+int game(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer,
+         ALLEGRO_EVENT_QUEUE *event_queue, ALLEGRO_FONT *font);
 
 #endif // !_ASTEROIDS_

@@ -1,5 +1,5 @@
 #include "bullet.h"
-#include "game.h"
+#include "main.h"
 
 void createBullets(Bullet bullets[]) {
   for (int i = 0; i < MAGAZINE_SIZE; i++) {

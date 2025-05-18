@@ -25,7 +25,6 @@ bool pointToPolygonCollision(Comet &comet, Bullet &bullet) {
         float xIntersect = x1 + (bullet.coorY - y1) * (x2 - x1) / (y2 - y1);
         if (bullet.coorX < xIntersect) {
           count++;
-          std::cout << "Intersection count: " << count << std::endl;
         }
       }
     }
@@ -60,7 +59,6 @@ bool shipToCometCollision(Comet &comet, Ship &ship) {
 
           if (shipCoor.x < xIntersect) {
             count++;
-            std::cout << "Intersection count: " << count << std::endl;
           }
         }
       }

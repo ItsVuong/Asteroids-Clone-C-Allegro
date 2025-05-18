@@ -1,5 +1,5 @@
 #include "comet.h"
-#include "game.h"
+#include "main.h"
 #include <allegro5/bitmap.h>
 #include <allegro5/bitmap_draw.h>
 #include <allegro5/color.h>
@@ -105,6 +105,16 @@ void spawnSmallComet(Comet &parentComet, Comet &smallComet) {
     direction = -1;
 
   smallComet.direction = parentComet.direction + (rand() % 30 + 1) * direction;
+}
+
+void destroyComets(Comet *array, int size) {
+  for (int i = 0; i < size; ++i) {
+    if (array[i].bitmap) {
+      al_destroy_bitmap(array[i].bitmap);
+      array[i].bitmap = nullptr;
+    }
+    array[i].isAlive = false;
+  }
 }
 
 Point getVertexLocation(Comet &comet, int i) { // i is vertex number

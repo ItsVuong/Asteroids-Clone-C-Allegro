@@ -11,9 +11,18 @@
 const int COMET_BITMAP_HEIGHT = 120;
 const int COMET_BITMAP_WIDTH = 120;
 const std::vector<Point> SHAPES[] = {
-    {{10, 10}, {10, 100}, {115, 115}, {115, 10}},
+    {{10, 30}, {25, 115}, {40, 115},{105, 100},{115, 50},{10, 30}},
     {{5, 5}, {5, 90}, {90, 90}, {90, 5}},
     {{5, 5}, {5, 40}, {40, 40}, {40, 5}}};
+    //{{10, 10}, {10, 100}, {115, 115}, {115, 10}},
+    //{{5, 5}, {5, 90}, {90, 90}, {90, 5}},
+    //{{5, 5}, {5, 40}, {40, 40}, {40, 5}}};
+const std::vector<Point> NORMAL_COMET_SHAPE = {
+};
+const std::vector<Point> SMALL_COMET_SHAPE = {
+};
+const std::vector<Point> TINY_COMET_SHAPE = {
+};
 const std::vector<Point> cometShape = {{5, 5}, {5, 90}, {90, 90}, {90, 5}};
 typedef enum {
   NORMAL = 0x00,
@@ -37,6 +46,7 @@ void createComet(Comet &comet, COMET_TYPE type);
 // Comet will spawn far away from a chosen point
 void spawnComet(Comet &comet, Point center);
 void moveComet(Comet comets[], int size);
+void destroyComets(Comet* array, int size);
 
 void spawnSmallComet(Comet &parentComet, Comet &smallComet);
 Point getVertexLocation(
